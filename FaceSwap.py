@@ -10,10 +10,10 @@ def index_from_array(arr):
 triangle_index_points_list=[]      
 frontal_face_detector=dlib.get_frontal_face_detector()
 frontal_shape_predictor=dlib.shape_predictor("D:\DeepFake_Practice\FaceSwap\DataSet\shape_predictor_68_face_landmarks.dat")
-imu_bgr=cv.imread("D:\DeepFake_Practice\FaceSwap\image\imu.jpg")
+imu_bgr=cv.imread("D:\DeepFake_Practice\FaceSwap\image\putin.jpg")
 imu=cv.cvtColor(imu_bgr,cv.COLOR_BGR2GRAY)
 #cv.imshow("Imran Khan",imu)
-putin_bgr=cv.imread("D:\DeepFake_Practice\FaceSwap\image\putin.jpg")
+putin_bgr=cv.imread("D:\DeepFake_Practice\FaceSwap\image\imu.jpg")
 putin=cv.cvtColor(putin_bgr,cv.COLOR_BGR2GRAY)
 # cv.imshow("Validemer Putin",putin)
 source_image_canvas=np.zeros_like(imu)
@@ -63,9 +63,9 @@ for triangle in triangles_array:
     index_point2=(triangle[2],triangle[3])
     index_point3=(triangle[4],triangle[5])
     line_color=(255,0,0)
-    cv.line(source_face_image,index_point1,index_point2,line_color,1)
-    cv.line(source_face_image,index_point2,index_point3,line_color,1)
-    cv.line(source_face_image,index_point3,index_point1,line_color,1)
+    #cv.line(source_face_image,index_point1,index_point2,line_color,1)
+    #cv.line(source_face_image,index_point2,index_point3,line_color,1)
+    #cv.line(source_face_image,index_point3,index_point1,line_color,1)
     #cv.imshow("gg",source_face_image)
     index_point1=np.where((index_point1==source_face_landmark_points_array).all(axis=1))
     index_point2=np.where((index_point2==source_face_landmark_points_array).all(axis=1))
@@ -87,12 +87,12 @@ for i,triangle_index_points in enumerate(triangle_index_points_list):
                                        [source_triangle_point2[0] - x, source_triangle_point2[1] - y],
                                        [source_triangle_point3[0] - x, source_triangle_point3[1]- y]], np.int32)
     cropped_source_rectangle=imu_bgr[y:y+h,x:x+w]
-    if i==15:
-        cv.line(imu_bgr,source_triangle_point1,source_triangle_point2,(255,255,255))
-        cv.line(imu_bgr,source_triangle_point2,source_triangle_point3,(255,255,255))
-        cv.line(imu_bgr,source_triangle_point3,source_triangle_point1,(255,255,255))
+    #if i==15:
+        #cv.line(imu_bgr,source_triangle_point1,source_triangle_point2,(255,255,255))
+        #cv.line(imu_bgr,source_triangle_point2,source_triangle_point3,(255,255,255))
+        #cv.line(imu_bgr,source_triangle_point3,source_triangle_point1,(255,255,255))
         #cv.imshow("10th",imu_bgr)
-        cv.rectangle(imu_bgr, (x,y), (x+w,y+h), (0,0,255))
+        #cv.rectangle(imu_bgr, (x,y), (x+w,y+h), (0,0,255))
         #cv.imshow("Rect",imu_bgr)
         #cv.imshow("Croped",cropped_source_rectangle)
     destination_triangle_point1=destination_face_landmark_points[triangle_index_points[0]]
@@ -107,24 +107,38 @@ for i,triangle_index_points in enumerate(triangle_index_points_list):
                        [destination_triangle_point2[0] - x, destination_triangle_point2[1] - y],
                        [destination_triangle_point3[0] - x, destination_triangle_point3[1] - y]], np.int32)
     cv.fillConvexPoly(cropped_destination_rectangle_mask,destination_triangle_points,255)
-    if i==15:
-        cv.line(putin_bgr,destination_triangle_point1,destination_triangle_point2,(255,255,255))
-        cv.line(putin_bgr,destination_triangle_point2,destination_triangle_point3,(255,255,255))
-        cv.line(putin_bgr,destination_triangle_point3,destination_triangle_point1,(255,255,255))
-        cv.imshow("10th1",putin_bgr)
-        cv.rectangle(putin_bgr, (x,y), (x+w,y+h), (0,0,255))
-        cv.imshow("Rect1",putin_bgr)
-        cv.imshow("Croped1",cropped_destination_rectangle_mask)
+    #if i==15:
+        #cv.line(putin_bgr,destination_triangle_point1,destination_triangle_point2,(255,255,255))
+        #cv.line(putin_bgr,destination_triangle_point2,destination_triangle_point3,(255,255,255))
+        #cv.line(putin_bgr,destination_triangle_point3,destination_triangle_point1,(255,255,255))
+        #cv.imshow("10th1",putin_bgr)
+        #cv.rectangle(putin_bgr, (x,y), (x+w,y+h), (0,0,255))
+        #cv.imshow("Rect1",putin_bgr)
+        #cv.imshow("Croped1",cropped_destination_rectangle_mask)
     source_triangle_points=np.float32(source_triangle_points)
     destination_triangle_points=np.float32(destination_triangle_points)
     Matrix=cv.getAffineTransform(source_triangle_points,destination_triangle_points)
     warped_triangle=cv.warpAffine(cropped_source_rectangle, Matrix, (w,h))
     #for demo, select triangle 10
-    if i==10:
-        cv.imshow("10.1: warped source triangle wrt the destination triangle points",warped_triangle)
+    #if i==10:
+        #cv.imshow("10.1: warped source triangle wrt the destination triangle points",warped_triangle)
         #placing destination rectangle mask over the warped triangle
     warped_triangle = cv.bitwise_and(warped_triangle, warped_triangle, mask=cropped_destination_rectangle_mask)
     #for demo, select triangle 10
-    if i==10:
-        cv.imshow("10.2: warped source triangle with the mask",warped_triangle)
-    
+    #if i==10:
+        #cv.imshow("10.2: warped source triangle with the mask",warped_triangle)
+    new_dest_face_canvas_area=destination_image_canvas[y:y+h,x:x+w]
+    new_dest_face_canvas_area_gray=cv.cvtColor(new_dest_face_canvas_area, cv.COLOR_BGR2GRAY)
+    _,mask_created_triangle=cv.threshold(new_dest_face_canvas_area_gray,1,255,cv.THRESH_BINARY_INV)
+    warped_triangle=cv.bitwise_and(warped_triangle, warped_triangle,mask=mask_created_triangle)
+    new_dest_face_canvas_area=cv.add(new_dest_face_canvas_area,warped_triangle)
+    destination_image_canvas[y:y+h,x:x+w]=new_dest_face_canvas_area
+#cv.imshow("Destination Convass",destination_image_canvas)
+final_destination_canvas=np.zeros_like(putin)
+final_destination_face_mask=cv.fillConvexPoly(final_destination_canvas,destination_face_convexhull, 255)
+final_destination_face_mask=cv.bitwise_not(final_destination_face_mask)
+#cv.imshow("final",final_destination_face_mask)
+destination_face_masked=cv.bitwise_and(putin_bgr, putin_bgr,mask=final_destination_face_mask)
+#cv.imshow("grapes",destination_face_masked)
+destination_with_face=cv.add(destination_face_masked,destination_image_canvas)
+cv.imshow("Final",destination_with_face)
