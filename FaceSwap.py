@@ -83,8 +83,11 @@ for i,triangle_index_points in enumerate(triangle_index_points_list):
     source_triangle=np.array([source_triangle_point1,source_triangle_point2,source_triangle_point3],np.int32)
     source_rectangle=cv.boundingRect(source_triangle)
     (x,y,w,h)=source_rectangle
+    source_triangle_points = np.array([[source_triangle_point1[0] - x, source_triangle_point1[1] - y],
+                                       [source_triangle_point2[0] - x, source_triangle_point2[1] - y],
+                                       [source_triangle_point3[0] - x, source_triangle_point3[1]- y]], np.int32)
     cropped_source_rectangle=imu_bgr[y:y+h,x:x+w]
-    if i==10:
+    if i==15:
         cv.line(imu_bgr,source_triangle_point1,source_triangle_point2,(255,255,255))
         cv.line(imu_bgr,source_triangle_point2,source_triangle_point3,(255,255,255))
         cv.line(imu_bgr,source_triangle_point3,source_triangle_point1,(255,255,255))
@@ -100,11 +103,11 @@ for i,triangle_index_points in enumerate(triangle_index_points_list):
     (x,y,w,h)=destination_rectangle
     cropped_destination_rectangle=imu_bgr[h,w]
     cropped_destination_rectangle_mask=np.zeros((h,w),np.uint8)
-    destination_triangle_points=np.array([[destination_triangle_point1[0]-x,destination_triangle_point1[1]-x],
-                                          [destination_triangle_point2[0]-x,destination_triangle_point2[1]-x],
-                                          [destination_triangle_point3[0]-x,destination_triangle_point3[1]-x]],np.int32)
+    destination_triangle_points = np.array([[destination_triangle_point1[0] - x, destination_triangle_point1[1] - y],
+                       [destination_triangle_point2[0] - x, destination_triangle_point2[1] - y],
+                       [destination_triangle_point3[0] - x, destination_triangle_point3[1] - y]], np.int32)
     cv.fillConvexPoly(cropped_destination_rectangle_mask,destination_triangle_points,255)
-    if i==10:
+    if i==15:
         cv.line(putin_bgr,destination_triangle_point1,destination_triangle_point2,(255,255,255))
         cv.line(putin_bgr,destination_triangle_point2,destination_triangle_point3,(255,255,255))
         cv.line(putin_bgr,destination_triangle_point3,destination_triangle_point1,(255,255,255))
@@ -112,3 +115,16 @@ for i,triangle_index_points in enumerate(triangle_index_points_list):
         cv.rectangle(putin_bgr, (x,y), (x+w,y+h), (0,0,255))
         cv.imshow("Rect1",putin_bgr)
         cv.imshow("Croped1",cropped_destination_rectangle_mask)
+    source_triangle_points=np.float32(source_triangle_points)
+    destination_triangle_points=np.float32(destination_triangle_points)
+    Matrix=cv.getAffineTransform(source_triangle_points,destination_triangle_points)
+    warped_triangle=cv.warpAffine(cropped_source_rectangle, Matrix, (w,h))
+    #for demo, select triangle 10
+    if i==10:
+        cv.imshow("10.1: warped source triangle wrt the destination triangle points",warped_triangle)
+        #placing destination rectangle mask over the warped triangle
+    warped_triangle = cv.bitwise_and(warped_triangle, warped_triangle, mask=cropped_destination_rectangle_mask)
+    #for demo, select triangle 10
+    if i==10:
+        cv.imshow("10.2: warped source triangle with the mask",warped_triangle)
+    
